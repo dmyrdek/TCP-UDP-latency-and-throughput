@@ -17,18 +17,17 @@ public class TCPclient {
 
     public long sendRTT(byte[] messageSize) throws IOException {
         byte[] response = new byte[messageSize.length];
-
         Socket socket = new Socket(ipAddress, port);
         DataOutputStream output = new DataOutputStream(socket.getOutputStream());
-
         long start = System.nanoTime();
         output.write(messageSize);
         DataInputStream input = new DataInputStream(socket.getInputStream());
+
         for (int i =0; i<messageSize.length; i++) {
             response[i] = input.readByte();
         }
-        long totalTime = System.nanoTime() - start;
 
+        long totalTime = System.nanoTime() - start;
         socket.close();
         output.close();
         input.close();
@@ -40,11 +39,9 @@ public class TCPclient {
         byte [] responses = new byte [numMessages];
         byte [] message = new byte[messageSize];
         Arrays.fill(message, (byte)1);
-
         Socket socket = new Socket(ipAddress, port);
         DataOutputStream output = new DataOutputStream(socket.getOutputStream());
         DataInputStream input = new DataInputStream(socket.getInputStream());
-
         long start = System.nanoTime();
 
         for (int messages = 0; messages <numMessages; messages++) {
@@ -53,21 +50,10 @@ public class TCPclient {
         }
 
         long totalTime = System.nanoTime() - start;
-
         socket.close();
         output.close();
         input.close();
 
-
-        //Sleep for a split second so that the server has a chance to restart
-        try {
-            Thread.sleep(10);
-        } catch (InterruptedException e) {
-            System.out.println("Thread interrupted");
-            e.printStackTrace();
-        }
-
         return totalTime;
-
     }
 }

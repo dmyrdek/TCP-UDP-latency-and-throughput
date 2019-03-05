@@ -25,9 +25,7 @@ public class UDPserver {
     }
 
     public void echo1MBServer(int numMessages, int messageSize) throws IOException {
-
         byte [] response = {(byte)1};
-
         byte [] messages = new byte [messageSize];
         DatagramPacket packet = new DatagramPacket(messages, messages.length);
         socket = new DatagramSocket(port);
@@ -40,7 +38,6 @@ public class UDPserver {
             DatagramPacket resp = new DatagramPacket(response, response.length, address, port);
             socket.send(resp);
         }
-
         socket.close();
     }
 

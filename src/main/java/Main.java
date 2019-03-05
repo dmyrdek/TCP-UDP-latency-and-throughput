@@ -7,7 +7,6 @@ import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 public class Main {
-
     final static int trials = 5;
 
     static TCPclient tcpClient;
@@ -35,8 +34,6 @@ public class Main {
     static int [] udpInteraction2048Messages = new int [trials];
     static int [] udpInteraction4096Messages = new int [trials];
 
-
-
     public static void main(String[] args) throws IOException {
         int port = 2799;
         Scanner sc = new Scanner(System.in);
@@ -55,11 +52,8 @@ public class Main {
 
         if (input.equals("s")){
             int currentTrial = 0;
-
             getIPAddress();
-
             TCPserver tcpServer = new TCPserver(port);
-
             UDPserver udpServer = new UDPserver(port);
 
             for (; currentTrial < trials; currentTrial++) {
@@ -84,21 +78,17 @@ public class Main {
                 udpServer.echo1MBServer(1024,1024);
                 udpServer.echo1MBServer(2048, 512);
                 udpServer.echo1MBServer(4096,256);
-
             }
-
 
         } else if (input.equals("c")){
             int currentTrial = 0;
-
             System.out.print("Please enter the server IP Address: ");
             String ipAddress = sc.next();
-
             tcpClient = new TCPclient(ipAddress,port);
             udpClient = new UDPclient(ipAddress,port);
 
             for (; currentTrial < trials; currentTrial++) {
-                System.out.println("------------------------------------");
+                System.out.println("----------------------------------------------------");
                 System.out.println("Trail #"+(currentTrial+1));
 
                 tcpRTT1Byte[currentTrial] = sendTCPMessage("RTT for 1 byte:", 1);
@@ -130,55 +120,8 @@ public class Main {
                 udpInteraction1024Messages[currentTrial] = measureInteractionUDP(1024, 1024);
                 udpInteraction2048Messages[currentTrial] = measureInteractionUDP(2048, 512);
                 udpInteraction4096Messages[currentTrial] = measureInteractionUDP(4096, 256);
-
             }
-
-            System.out.println("Done!");
-            printResults();
         }
-    }
-
-    private static void printResults() {
-
-        System.out.println("Average TCP RTT 1 byte: " + getAverage(tcpRTT1Byte) + " microseconds");
-        System.out.println("Average TCP RTT 64 byte: " + getAverage(tcpRTT64Byte) + " microseconds");
-        System.out.println("Average TCP RTT 1024 byte: " + getAverage(tcpRTT1024Byte) + " microseconds");
-
-        System.out.println("Average UDP RTT 1 byte: " + getAverage(udpRTT1Byte) + " microseconds");
-        System.out.println("Average UDP RTT 64 byte: " + getAverage(udpRTT64Byte) + " microseconds");
-        System.out.println("Average UDP RTT 1024 byte: " + getAverage(udpRTT1024Byte) + " microseconds");
-
-        System.out.println("Average throughput for 1k bytes: " + getAverageFloat(tcpThroughput1KByte) + " Mbps");
-        System.out.println("Average throughput for 16k bytes: " + getAverageFloat(tcpThroughput16KByte) + " Mbps");
-        System.out.println("Average throughput for 64k bytes: " + getAverageFloat(tcpThroughput64KByte) + " Mbps");
-        System.out.println("Average throughput for 256k bytes: " + getAverageFloat(tcpThroughput256KByte) + " Mbps");
-        System.out.println("Average throughput for 1M bytes: " + getAverageFloat(tcpThroughput1MByte) + " Mbps");
-
-        System.out.println("Average time to send 1024, 1024 byte TCP messages: " + getAverage(tcpInteraction1024Messages) + " Milliseconds");
-        System.out.println("Average time to send 2048, 512 byte TCP messages: " + getAverage(tcpInteraction2048Messages) + " Milliseconds");
-        System.out.println("Average time to send 4096, 256 byte TCP messages: " + getAverage(tcpInteraction4096Messages) + " Milliseconds");
-
-        System.out.println("Average time to send 1024, 1024 byte UDP messages: " + getAverage(udpInteraction1024Messages) + " Milliseconds");
-        System.out.println("Average time to send 2048, 512  byte UDP messages: " + getAverage(udpInteraction2048Messages) + " Milliseconds");
-        System.out.println("Average time to send 4096, 256  byte UDP messages: " + getAverage(udpInteraction4096Messages) + " Milliseconds");
-
-
-    }
-
-    private static int getAverage(int [] data) {
-        int count =0;
-        for (int i: data) {
-            count += i;
-        }
-        return count/data.length;
-    }
-
-    private static float getAverageFloat(float [] data) {
-        float count =0;
-        for (float i: data) {
-            count += i;
-        }
-        return count/data.length;
     }
 
     public static int sendTCPMessage(String outputMessage, int numBytes) throws IOException {
@@ -201,24 +144,17 @@ public class Main {
         byte [] message = new byte[numBytes];
         Arrays.fill(message, (byte)1);
         long RTT = tcpClient.sendRTT(message);
-
-        //throughout here in bits/nanosecond
         int numBits = numBytes * 8 * 2;
         double throughput = (double)numBits/RTT;
-
-        //convert to megabits/sec
         float throughputMBPS = (float)throughput*1000;
-
         System.out.println("Throughput for " + numBytes + " : " + throughputMBPS + " Mbps");
         return throughputMBPS;
-
     }
 
     public static int measureInteractionTCP(int numMessages, int messageSize) throws IOException {
         int time = (int)TimeUnit.MILLISECONDS.convert(tcpClient.send1MB(numMessages, messageSize), TimeUnit.NANOSECONDS);
         System.out.println("Time to send " + numMessages + ", " + messageSize + " byte packets: " + time + " Milliseconds");
         return time;
-
     }
 
     public static int measureInteractionUDP(int numMessages, int messageSize) throws IOException {
