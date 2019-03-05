@@ -21,12 +21,19 @@ public class Main {
     static int [] udpRTT64Byte = new int [trials];
     static int [] udpRTT1024Byte = new int [trials];
 
-
     static float [] tcpThroughput1KByte = new float [trials];
     static float [] tcpThroughput16KByte = new float [trials];
     static float [] tcpThroughput64KByte = new float [trials];
     static float [] tcpThroughput256KByte = new float [trials];
     static float [] tcpThroughput1MByte = new float [trials];
+
+    static int [] tcpInteraction1024Messages = new int [trials];
+    static int [] tcpInteraction2048Messages = new int [trials];
+    static int [] tcpInteraction4096Messages = new int [trials];
+
+    static int [] udpInteraction1024Messages = new int [trials];
+    static int [] udpInteraction2048Messages = new int [trials];
+    static int [] udpInteraction4096Messages = new int [trials];
 
 
 
@@ -83,19 +90,38 @@ public class Main {
             udpClient = new UDPclient(ipAddress,port);
 
             for (; currentTrial < trials; currentTrial++) {
+                System.out.println("------------------------------------");
+                System.out.println("Trail #"+currentTrial);
+
                 tcpRTT1Byte[currentTrial] = sendTCPMessage("RTT for 1 byte:", 1);
                 tcpRTT64Byte[currentTrial] = sendTCPMessage("RTT for 64 bytes:", 64);
                 tcpRTT1024Byte[currentTrial] = sendTCPMessage("RTT for 1024 bytes:", 1024);
 
+                System.out.print("\n");
+
                 udpRTT1Byte[currentTrial] = sendUDPMessage("RTT for 1 byte:", 1);
                 udpRTT64Byte[currentTrial] = sendUDPMessage("RTT for 64 byte:", 64);
                 udpRTT1024Byte[currentTrial] = sendUDPMessage("RTT for 1024 byte:", 1024);
+
+                System.out.print("\n");
 
                 tcpThroughput1KByte[currentTrial] = measureTCPThroughput(1024);
                 tcpThroughput16KByte[currentTrial] = measureTCPThroughput(16384);
                 tcpThroughput64KByte[currentTrial] =  measureTCPThroughput(65536);
                 tcpThroughput256KByte[currentTrial] = measureTCPThroughput(262144);
                 tcpThroughput1MByte[currentTrial] = measureTCPThroughput(1048576);
+
+                System.out.print("\n");
+
+                tcpInteraction1024Messages[currentTrial] = measureInteractionTCP(1024, 1024);
+                tcpInteraction2048Messages[currentTrial] = measureInteractionTCP(2048, 512);
+                tcpInteraction4096Messages[currentTrial] = measureInteractionTCP(4096, 256);
+
+                System.out.print("\n");
+                
+                udpInteraction1024Messages[currentTrial] = measureInteractionUDP(1024, 1024);
+                udpInteraction2048Messages[currentTrial] = measureInteractionUDP(2048, 512);
+                udpInteraction4096Messages[currentTrial] = measureInteractionUDP(4096, 256);
 
             }
         }
@@ -112,7 +138,7 @@ public class Main {
     public static int sendUDPMessage(String outputMessage, int numBytes) throws IOException {
         byte [] message = new byte[numBytes];
         Arrays.fill(message, (byte)1);
-        long RTT = udpClient.sendAndMeasureRTT(message);
+        long RTT = udpClient.sendRTT(message);
         System.out.println(outputMessage +  " " + TimeUnit.MICROSECONDS.convert(RTT, TimeUnit.NANOSECONDS) + " microseconds");
         return (int)TimeUnit.MICROSECONDS.convert(RTT, TimeUnit.NANOSECONDS);
     }
@@ -132,6 +158,19 @@ public class Main {
         System.out.println("Throughput for " + numBytes + " : " + throughputMBPS + " Mbps");
         return throughputMBPS;
 
+    }
+
+    public static int measureInteractionTCP(int numMessages, int messageSize) throws IOException {
+        int time = (int)TimeUnit.MILLISECONDS.convert(tcpClient.send1MB(numMessages, messageSize), TimeUnit.NANOSECONDS);
+        System.out.println("Time to send " + numMessages + ", " + messageSize + " byte packets: " + time + " Milliseconds");
+        return time;
+
+    }
+
+    public static int measureInteractionUDP(int numMessages, int messageSize) throws IOException {
+        int time = (int)TimeUnit.MILLISECONDS.convert(udpClient.send1MB(numMessages, messageSize), TimeUnit.NANOSECONDS);;
+        System.out.println("Time to send " + numMessages + ", " + messageSize + " byte packets: " + time + " Milliseconds");
+        return time;
     }
 
     public static void getIPAddress() throws IOException{
