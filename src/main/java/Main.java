@@ -80,6 +80,7 @@ public class Main {
             String ipAddress = sc.next();
 
             tcpClient = new TCPclient(ipAddress,port);
+            udpClient = new UDPclient(ipAddress,port);
 
             for (; currentTrial < trials; currentTrial++) {
                 tcpRTT1Byte[currentTrial] = sendTCPMessage("RTT for 1 byte:", 1);
