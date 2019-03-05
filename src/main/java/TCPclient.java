@@ -2,6 +2,8 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
+import java.util.Arrays;
 
 public class TCPclient {
 
@@ -32,5 +34,40 @@ public class TCPclient {
         input.close();
 
         return totalTime;
+    }
+
+    public long send1MB(int numMessages, int messageSize) throws IOException {
+        byte [] responses = new byte [numMessages];
+        byte [] message = new byte[messageSize];
+        Arrays.fill(message, (byte)1);
+
+        Socket socket = new Socket(ipAddress, port);
+        DataOutputStream output = new DataOutputStream(socket.getOutputStream());
+        DataInputStream input = new DataInputStream(socket.getInputStream());
+
+        long start = System.nanoTime();
+
+        for (int messages = 0; messages <numMessages; messages++) {
+            output.write(message);
+            responses[messages] = input.readByte();
+        }
+
+        long totalTime = System.nanoTime() - start;
+
+        socket.close();
+        output.close();
+        input.close();
+
+
+        //Sleep for a split second so that the server has a chance to restart
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException e) {
+            System.out.println("Thread interrupted");
+            e.printStackTrace();
+        }
+
+        return totalTime;
+
     }
 }
