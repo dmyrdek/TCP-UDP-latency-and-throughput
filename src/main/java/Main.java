@@ -77,6 +77,14 @@ public class Main {
                 tcpServer.startServer(262144);
                 tcpServer.startServer(1048576);
 
+                tcpServer.echo1MBServer(1024,1024);
+                tcpServer.echo1MBServer(2048, 512);
+                tcpServer.echo1MBServer(4096,256);
+
+                udpServer.echo1MBServer(1024,1024);
+                udpServer.echo1MBServer(2048, 512);
+                udpServer.echo1MBServer(4096,256);
+
             }
 
 
@@ -118,7 +126,7 @@ public class Main {
                 tcpInteraction4096Messages[currentTrial] = measureInteractionTCP(4096, 256);
 
                 System.out.print("\n");
-                
+
                 udpInteraction1024Messages[currentTrial] = measureInteractionUDP(1024, 1024);
                 udpInteraction2048Messages[currentTrial] = measureInteractionUDP(2048, 512);
                 udpInteraction4096Messages[currentTrial] = measureInteractionUDP(4096, 256);
